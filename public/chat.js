@@ -1,0 +1,53 @@
+var socket = io();
+// const socket = io.connect('http://localhost:4000');
+
+//Query DOM
+var message = document.getElementById('message'),
+    handle = document.getElementById('handle'),
+    btn = document.getElementById('send'),
+    output = document.getElementById('output'),
+    feedback = document.getElementById('feedback')
+
+let code = document.getElementById('code');
+
+
+//Emit event
+btn.addEventListener('click', function () {
+    socket.emit('chat', {
+        message: message.value,
+        handle: handle.value,
+    })
+});
+
+message.addEventListener('keypress', function () {
+    socket.emit('typing', handle.value)
+})
+
+code.addEventListener('input', function () {
+    socket.on('coding', {
+        code: code.value
+    }, socket.on('coding', function (data) {
+        code.value = '<p>' + data.code + '</p>'
+    }))
+    console.log(code.value);
+})
+
+
+
+// code.addEventListener('input', () => {
+//     let codeValue = code.value;
+//     console.log(codeValue);
+
+// })
+
+//Listen for event
+socket.on('chat', function (data) {
+    feedback.innerHTML = "";
+    message.value = "";
+    output.innerHTML += '<p><strong>' + data.handle + ':</strong> ' + data.message + '</p>';
+});
+
+socket.on('typing', function (data) {
+    feedback.innerHTML = '<p><em>' + data + ' is typing...' + '</p></em>';
+});
+
